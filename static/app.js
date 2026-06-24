@@ -20,7 +20,8 @@ const ICONS = {
   environment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M15 9l-2.2 5.2L9 16l2.2-5.2z"/></svg>',
   company_explainer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="10" height="18" rx="1"/><path d="M14 9h6v12h-6"/><path d="M7 7h.01M11 7h.01M7 11h.01M11 11h.01M7 15h.01M11 15h.01"/></svg>',
   locations: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>',
-  questions: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.7 2.2c-.7.4-1.2.9-1.2 1.8v.4"/><path d="M12 17h.01"/></svg>',
+  role_questions: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.5 2.5 0 1 1 3.7 2.2c-.7.4-1.2.9-1.2 1.8v.4"/><path d="M12 17h.01"/></svg>',
+  research_questions: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M10.5 7.5v6"/><path d="M7.5 10.5h6"/></svg>',
 };
 
 const SECTIONS = [
@@ -81,22 +82,16 @@ function makeSection(key, label) {
   return p;
 }
 
-async function renderResult(result) {
-  resultEl.innerHTML = "";
-  for (const [key, label] of SECTIONS) {
-    const p = makeSection(key, label);
-    await typeInto(p, result[key] || "");
-  }
-
+async function renderQuestions(iconKey, label, questions) {
   const section = document.createElement("div");
   section.className = "result-section";
   const head = document.createElement("div");
   head.className = "section-head";
   const icon = document.createElement("span");
   icon.className = "icon";
-  icon.innerHTML = ICONS.questions;
+  icon.innerHTML = ICONS[iconKey];
   const h2 = document.createElement("h2");
-  h2.textContent = "Questions to ask";
+  h2.textContent = label;
   head.appendChild(icon);
   head.appendChild(h2);
   const ul = document.createElement("ul");
@@ -105,7 +100,7 @@ async function renderResult(result) {
   resultEl.appendChild(section);
 
   let i = 1;
-  for (const q of result.questions_to_ask || []) {
+  for (const q of questions || []) {
     const li = document.createElement("li");
     const badge = document.createElement("span");
     badge.className = "q-badge";
@@ -116,6 +111,17 @@ async function renderResult(result) {
     ul.appendChild(li);
     await typeInto(span, q);
   }
+}
+
+async function renderResult(result) {
+  resultEl.innerHTML = "";
+  for (const [key, label] of SECTIONS) {
+    const p = makeSection(key, label);
+    await typeInto(p, result[key] || "");
+  }
+
+  await renderQuestions("role_questions", "Questions to ask", result.role_questions);
+  await renderQuestions("research_questions", "Questions from your research", result.research_questions);
 }
 
 function showError(message) {

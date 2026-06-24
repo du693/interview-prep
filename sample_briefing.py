@@ -4,15 +4,15 @@ SAMPLE_JOB_TITLE = "Account Executive"
 SAMPLE_RESULT = {
     "candidate_profile": (
         "The hiring manager wants a self-starter who can own a full SMB sales cycle — "
-        "prospecting through close — without heavy hand-holding in a remote setting. Jack is "
-        "a strong fit: he's already doing this exact job at ZoomInfo, has closed $100K+ in "
-        "self-sourced revenue in six months, and has a clear progression from inbound SDR → "
-        "outbound SDR → MM SDR → AE. His MEDDIC and Challenger Sale experience signals he "
-        "already sells consultatively, which matters for a platform sale (CRM/workflow) where "
+        "prospecting through close — without heavy hand-holding in a remote setting. You're "
+        "a strong fit: you're already doing this exact job at ZoomInfo, have closed $100K+ in "
+        "self-sourced revenue in six months, and have a clear progression from inbound SDR → "
+        "outbound SDR → MM SDR → AE. Your MEDDIC and Challenger Sale experience signals you "
+        "already sell consultatively, which matters for a platform sale (CRM/workflow) where "
         "buyers need to understand business value, not just features. The one gap to address: "
         "Creatio sells a no-code/AI platform that may be more technically nuanced than "
-        "ZoomInfo's data product, so Jack should be ready to speak to how quickly he ramps on "
-        "new products and technical concepts."
+        "ZoomInfo's data product, so be ready to speak to how quickly you ramp on new products "
+        "and technical concepts."
     ),
     "culture": (
         "Creatio was named to Inc.'s Best Workplaces list in 2025, signaling a stated "
@@ -24,17 +24,17 @@ SAMPLE_RESULT = {
     ),
     "experience_level": (
         "Mid-level. The role requires 2+ years in sales and specifically calls out SMB "
-        "full-cycle ownership. Jack has roughly 1.5 years at ZoomInfo with a clear arc from "
-        "SDR to AE, which meets the bar. He should frame his ZoomInfo tenure as a compressed "
-        "but high-intensity progression rather than a short stint."
+        "full-cycle ownership. You have roughly 1.5 years at ZoomInfo with a clear arc from "
+        "SDR to AE, which meets the bar. Frame your ZoomInfo tenure as a compressed but "
+        "high-intensity progression rather than a short stint."
     ),
     "environment": (
         "This is a fully remote role based in the US. The JD language (\"fast-paced,\" \"make "
         "an impact from day one,\" \"results-driven\") points to a growth-stage company still "
         "building out its SMB motion, not a mature enterprise with fully defined playbooks. "
-        "Jack should expect to operate with some autonomy and help shape process, not just "
-        "execute an established one. Live web research was unavailable, so specific team size "
-        "and reporting structure are unknown — good topics to ask about on the call."
+        "Expect to operate with some autonomy and help shape process, not just execute an "
+        "established one. Live web research was unavailable, so specific team size and "
+        "reporting structure are unknown — good topics to ask about on the call."
     ),
     "company_explainer": (
         "Creatio makes a no-code platform that lets companies build CRM workflows and "
@@ -51,15 +51,20 @@ SAMPLE_RESULT = {
         "though live research was unavailable to confirm). This specific role is fully "
         "remote, US-based."
     ),
-    "questions_to_ask": [
+    "role_questions": [
         "What does the current SMB sales motion look like — is there an established outbound "
         "playbook, or is this role expected to help build it?",
         "How is the SDR-to-AE handoff structured, and how closely do AEs partner with "
         "Solutions Consulting on technical demos for the no-code platform?",
         "What does the ramp period look like, and what are the key milestones you use to "
         "measure whether a new AE is on track in the first 90 days?",
-        "Where does the SMB segment sit in Creatio's broader go-to-market priority — is this "
-        "a growth investment or an established revenue engine?",
+    ],
+    "research_questions": [
+        "Creatio made Inc.'s Best Workplaces list in 2025 — what does that actually look like "
+        "day-to-day for an AE, beyond the headline?",
+        "You're recognized as a Leader in Gartner's report for this category — does that brand "
+        "recognition show up in deals, or are you still doing a lot of category education with "
+        "SMB prospects?",
     ],
 }
 

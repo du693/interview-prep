@@ -1,0 +1,54 @@
+.rr-mark-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 32px !important;
+  min-height: 0 !important;
+  padding: 0 14px !important;
+  font-family: "Google Sans", Roboto, Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  background: #5b7fff !important;
+  border: none !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.75), 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+  animation: rr-popin 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+  border-radius: 20px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  flex-shrink: 0 !important;
+  text-decoration: none !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  align-self: center !important;
+}
+
+.rr-mark-btn:hover {
+  background: #7295ff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+@keyframes rr-popin {
+  from { opacity: 0; transform: scale(0.75); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.rr-mark-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  flex-shrink: 0 !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  display: inline-block !important;
+  overflow: visible !important;
+}

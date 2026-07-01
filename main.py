@@ -1,11 +1,14 @@
 import asyncio
 import io
 import logging
+import os
 import re
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, List, Optional
+
+import psycopg2
 
 from pydantic import BaseModel
 
@@ -36,8 +39,47 @@ from auth.gmail import (
 )
 from sample_briefing import SAMPLE_COMPANY_NAME, SAMPLE_JOB_TITLE, SAMPLE_RESULT, SAMPLE_STAGES
 
+def _psycopg2_url(raw: str) -> str:
+    """Strip SQLAlchemy driver prefix and pooler query params so psycopg2 can parse the URL."""
+    url = raw.split("?")[0]  # drop ?pgbouncer and any other query params
+    for prefix in ("postgresql+asyncpg://", "postgresql+psycopg2://", "postgres+asyncpg://"):
+        if url.startswith(prefix):
+            url = "postgresql://" + url[len(prefix):]
+            break
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+    return url
+
+
+def _migrate_db():
+    db_url = os.getenv("DATABASE_URL", "")
+    if not db_url:
+        logging.warning("DB migration skipped: DATABASE_URL not set")
+        return
+    try:
+        conn = psycopg2.connect(_psycopg2_url(db_url))
+        cur = conn.cursor()
+        cur.execute("ALTER TABLE pipeline_entries ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''")
+        cur.execute("ALTER TABLE pipeline_entries ADD COLUMN IF NOT EXISTS comp_range TEXT DEFAULT ''")
+        cur.execute("ALTER TABLE pipeline_entries ADD COLUMN IF NOT EXISTS company_url TEXT DEFAULT ''")
+        cur.execute("ALTER TABLE pipeline_entries ADD COLUMN IF NOT EXISTS role_level TEXT DEFAULT ''")
+        cur.execute("ALTER TABLE scheduled_interviews ADD COLUMN IF NOT EXISTS person TEXT DEFAULT ''")
+        conn.commit()
+        cur.close()
+        conn.close()
+        logging.info("DB migration complete")
+    except Exception as e:
+        logging.error(f"DB migration error: {e}")
+
+
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
+    _migrate_db()
+    # Tell PostgREST to reload its schema cache so new columns are visible
+    try:
+        supabase_admin.rpc("pg_notify", {"channel": "pgrst", "payload": "reload schema"}).execute()
+    except Exception:
+        pass  # pg_notify may not be RPC-accessible; schema refresh is best-effort
     scheduler.add_job(_scheduled_gmail_scan_all, "interval", minutes=15, id="gmail_scan")
     scheduler.start()
     yield
@@ -716,6 +758,7 @@ async def gmail_status(user=Depends(get_current_user), day_start: str = None):
 class InterviewCreate(BaseModel):
     company: str = ""
     role: str = ""
+    person: str = ""
     date: str = ""
     stage: str = ""
     prepped: bool = False
@@ -726,6 +769,7 @@ class InterviewCreate(BaseModel):
 class InterviewUpdate(BaseModel):
     company: Optional[str] = None
     role: Optional[str] = None
+    person: Optional[str] = None
     date: Optional[str] = None
     stage: Optional[str] = None
     prepped: Optional[bool] = None
@@ -739,6 +783,7 @@ def _interview_to_js(row: dict) -> dict:
         "id": row["id"],
         "company": row.get("company", ""),
         "role": row.get("role", ""),
+        "person": row.get("person", ""),
         "date": row.get("date", ""),
         "stage": row.get("stage", ""),
         "prepped": row.get("prepped", False),
@@ -750,7 +795,7 @@ def _interview_to_js(row: dict) -> dict:
 
 def _interview_from_js(data: dict) -> dict:
     out = {}
-    for k in ("company", "role", "date", "stage", "prepped", "reviewed", "review"):
+    for k in ("company", "role", "person", "date", "stage", "prepped", "reviewed", "review"):
         if k in data:
             out[k] = data[k]
     if "calEventId" in data:
@@ -771,7 +816,14 @@ async def get_interviews(user=Depends(get_current_user)):
 async def create_interview(body: InterviewCreate, user=Depends(get_current_user)):
     row = _interview_from_js(body.model_dump())
     row["user_id"] = user.id
-    resp = supabase_admin.table("scheduled_interviews").insert(row).execute()
+    try:
+        resp = supabase_admin.table("scheduled_interviews").insert(row).execute()
+    except Exception as e:
+        if "person" in str(e):
+            row.pop("person", None)
+            resp = supabase_admin.table("scheduled_interviews").insert(row).execute()
+        else:
+            raise
     return JSONResponse(_interview_to_js(resp.data[0]))
 
 
@@ -860,6 +912,10 @@ class PipelineEntryCreate(BaseModel):
     calEventId: str = ""
     rounds: List[Any] = []
     addedAt: str = ""
+    notes: str = ""
+    compRange: str = ""
+    companyUrl: str = ""
+    roleLevel: str = ""
 
 class PipelineEntryUpdate(BaseModel):
     company: Optional[str] = None
@@ -869,6 +925,10 @@ class PipelineEntryUpdate(BaseModel):
     calEventId: Optional[str] = None
     rounds: Optional[List[Any]] = None
     addedAt: Optional[str] = None
+    notes: Optional[str] = None
+    compRange: Optional[str] = None
+    companyUrl: Optional[str] = None
+    roleLevel: Optional[str] = None
 
 
 def _entry_to_js(row: dict) -> dict:
@@ -881,6 +941,10 @@ def _entry_to_js(row: dict) -> dict:
         "calEventId": row.get("cal_event_id", ""),
         "rounds": row.get("rounds") or [],
         "addedAt": row.get("added_at", ""),
+        "notes": row.get("notes", ""),
+        "compRange": row.get("comp_range", ""),
+        "companyUrl": row.get("company_url", ""),
+        "roleLevel": row.get("role_level", ""),
     }
 
 
@@ -890,6 +954,8 @@ def _entry_from_js(data: dict) -> dict:
         "company": "company", "role": "role", "status": "status",
         "screeningDate": "screening_date", "calEventId": "cal_event_id",
         "rounds": "rounds", "addedAt": "added_at",
+        "notes": "notes", "compRange": "comp_range",
+        "companyUrl": "company_url", "roleLevel": "role_level",
     }
     for js_key, db_key in mapping.items():
         if js_key in data and data[js_key] is not None:
@@ -907,6 +973,21 @@ async def get_pipeline_entries(user=Depends(get_current_user)):
         .execute()
     )
     return JSONResponse({"entries": [_entry_to_js(r) for r in (resp.data or [])]})
+
+
+@app.get("/pipeline/entries/{entry_id}")
+async def get_pipeline_entry(entry_id: str, user=Depends(get_current_user)):
+    resp = (
+        supabase_admin.table("pipeline_entries")
+        .select("*")
+        .eq("id", entry_id)
+        .eq("user_id", user.id)
+        .limit(1)
+        .execute()
+    )
+    if not resp.data:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return JSONResponse(_entry_to_js(resp.data[0]))
 
 
 @app.post("/pipeline/entries")
@@ -937,6 +1018,29 @@ async def update_pipeline_entry(entry_id: str, body: PipelineEntryUpdate, user=D
 async def delete_pipeline_entry(entry_id: str, user=Depends(get_current_user)):
     supabase_admin.table("pipeline_entries").delete().eq("id", entry_id).eq("user_id", user.id).execute()
     return JSONResponse({"ok": True})
+
+
+class RecruiterScreenCreate(BaseModel):
+    company_name: str
+    job_title: str = ""
+    notes: str = ""
+    comp_range: str = ""
+
+
+@app.post("/recruiter-screen")
+async def save_recruiter_screen(body: RecruiterScreenCreate, user=Depends(get_current_user)):
+    row = {
+        "user_id": user.id,
+        "company": body.company_name,
+        "role": body.job_title,
+        "status": "recruiter_screen",
+        "notes": body.notes,
+        "comp_range": body.comp_range,
+        "added_at": datetime.now(timezone.utc).isoformat(),
+    }
+    resp = supabase_admin.table("pipeline_entries").insert(row).execute()
+    entry = resp.data[0] if resp.data else {}
+    return JSONResponse({"ok": True, "entry": _entry_to_js(entry) if entry else {}})
 
 
 @app.get("/calendar/events")

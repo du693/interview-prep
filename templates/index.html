@@ -55,12 +55,20 @@
         </div>
         <div class="stage-grid">
           <label class="stage-card">
+            <input type="radio" name="stage_type" value="recruiter_screen">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            </span>
+            <h3>Recruiter screen</h3>
+            <p>Initial HR or talent call</p>
+          </label>
+          <label class="stage-card">
             <input type="radio" name="stage_type" value="intro_call" checked>
             <span class="stage-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
             </span>
             <h3>Intro call</h3>
-            <p>Recruiter or hiring manager screen</p>
+            <p>Hiring manager or first interview</p>
           </label>
           <label class="stage-card">
             <input type="radio" name="stage_type" value="behavioral">
@@ -102,6 +110,19 @@
             <h3>Final round</h3>
             <p>Executive or offer-stage conversation</p>
           </label>
+        </div>
+
+        <div class="stage-fields" data-stage="recruiter_screen">
+          <div class="field-row">
+            <div class="field">
+              <label>What do you know so far? <span class="hint">(optional)</span></label>
+              <textarea name="recruiter_notes" rows="3" placeholder="e.g. they mentioned fast growth, fully remote, series B stage — anything worth remembering"></textarea>
+            </div>
+            <div class="field">
+              <label>Comp range discussed? <span class="hint">(optional)</span></label>
+              <input type="text" name="comp_range" placeholder="e.g. $120k–$140k base + equity">
+            </div>
+          </div>
         </div>
 
         <div class="stage-fields" data-stage="behavioral">
@@ -184,7 +205,7 @@
         </div>
       </div>
 
-      <div class="field-group">
+      <div class="field-group" id="materials-section">
         <div class="group-head">
           <span class="icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/></svg>

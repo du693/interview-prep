@@ -31,6 +31,7 @@ function getInt(key) {
 // ── In-memory caches ─────────────────────────────────────────────
 let interviewsCache = [];
 let followupsCache = [];
+let dbPipelineCache = [];
 
 function getInterviews() { return interviewsCache; }
 function getFollowUps()  { return followupsCache; }
@@ -180,7 +181,12 @@ function buildInterviewRow(interview) {
     prepBtn.type = "button";
     prepBtn.className = "db-prep-btn";
     prepBtn.textContent = "Prep now";
-    prepBtn.addEventListener("click", () => openBriefingModal(interview.company, interview.role));
+    prepBtn.addEventListener("click", () => {
+      const matched = dbPipelineCache.find(
+        (p) => p.company.toLowerCase().trim() === (interview.company || "").toLowerCase().trim()
+      );
+      openBriefingModal(interview.company, interview.role || (matched && matched.role) || "", matched && matched.id, interview.person, interview.personTitle);
+    });
     actions.appendChild(prepBtn);
   }
 
@@ -395,6 +401,7 @@ function renderPipelineRoles(pipelineEntries) {
 
 async function renderDashboardPipeline() {
   const entries = await fetchPipelineEntries();
+  dbPipelineCache = entries;
   renderActiveConversations(entries);
   renderPipelineRoles(entries);
 }
@@ -523,10 +530,13 @@ async function loadGmailStatus() {
 const briefingModalOverlay = document.getElementById("briefing-modal-overlay");
 const briefingModalFrame = document.getElementById("briefing-modal-frame");
 
-function openBriefingModal(company = "", role = "") {
+function openBriefingModal(company = "", role = "", pipelineId = "", interviewer = "", interviewerTitle = "") {
   const params = new URLSearchParams({ embed: "1", _: Date.now() });
   if (company) params.set("company", company);
   if (role) params.set("role", role);
+  if (pipelineId) params.set("pipeline_id", pipelineId);
+  if (interviewer) params.set("interviewer", interviewer);
+  if (interviewerTitle) params.set("interviewer_title", interviewerTitle);
   briefingModalFrame.src = `/app?${params}`;
   briefingModalOverlay.classList.add("active");
   document.documentElement.style.overflow = "hidden";
@@ -723,11 +733,15 @@ function renderCalendarEvents(events) {
       briefingBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         const interviewer = ev.attendees && ev.attendees[0] ? ev.attendees[0].name || ev.attendees[0].email : "";
+        const matched = dbPipelineCache.find(
+          (p) => p.company && ev.company && p.company.toLowerCase().trim() === ev.company.toLowerCase().trim()
+        );
         const params = new URLSearchParams({
           embed: "1",
           _: Date.now(),
           ...(ev.company ? { company: ev.company } : {}),
           ...(interviewer ? { interviewer } : {}),
+          ...(matched ? { pipeline_id: matched.id } : {}),
         });
         briefingModalFrame.src = `/app?${params}`;
         briefingModalOverlay.classList.add("active");
@@ -740,21 +754,9 @@ function renderCalendarEvents(events) {
       interviewBtn.type = "button";
       interviewBtn.className = "cal-action-interview";
       interviewBtn.textContent = "Mark as interview";
-      interviewBtn.addEventListener("click", async (e) => {
+      interviewBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        const dateStr = ev.start ? ev.start.slice(0, 10) : todayStr();
-        const created = await _apiCreateInterview({
-          company: ev.company || ev.title,
-          role: "",
-          date: dateStr,
-          stage: "",
-          prepped: false,
-          calEventId: ev.id || "",
-          reviewed: false,
-        });
-        interviewsCache.push(created);
-        renderAll();
-        calModalOverlay.classList.remove("active");
+        openMarkInterviewModal(ev);
       });
 
       actions.appendChild(briefingBtn);
@@ -797,6 +799,96 @@ document.getElementById("cal-modal-close").addEventListener("click", () => calMo
 calModalOverlay.addEventListener("click", (e) => { if (e.target === calModalOverlay) calModalOverlay.classList.remove("active"); });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && calModalOverlay.classList.contains("active")) calModalOverlay.classList.remove("active");
+});
+
+// ── Mark as interview modal ───────────────────────────────────────────────────
+
+const markIvOverlay  = document.getElementById("mark-iv-overlay");
+const markIvCompany  = document.getElementById("mark-iv-company");
+const markIvRole     = document.getElementById("mark-iv-role");
+const markIvPerson   = document.getElementById("mark-iv-person");
+const markIvSubmit   = document.getElementById("mark-iv-submit");
+let _pendingCalEvent = null;
+
+function openMarkInterviewModal(ev) {
+  _pendingCalEvent = ev;
+  markIvCompany.value = ev.company || ev.title || "";
+  markIvRole.value = "";
+  const attendee = ev.attendees && ev.attendees[0];
+  markIvPerson.value = attendee ? (attendee.name || attendee.email || "") : "";
+
+  // Pre-fill role from pipeline cache if we have a match
+  const matched = dbPipelineCache.find(
+    (p) => p.company && (ev.company || "").toLowerCase().trim() &&
+           p.company.toLowerCase().trim() === (ev.company || "").toLowerCase().trim()
+  );
+  if (matched && matched.role) markIvRole.value = matched.role;
+
+  markIvOverlay.classList.add("active");
+  markIvCompany.focus();
+}
+
+function closeMarkInterviewModal() {
+  markIvOverlay.classList.remove("active");
+  _pendingCalEvent = null;
+}
+
+document.getElementById("mark-iv-close").addEventListener("click", closeMarkInterviewModal);
+document.getElementById("mark-iv-cancel").addEventListener("click", closeMarkInterviewModal);
+markIvOverlay.addEventListener("click", (e) => { if (e.target === markIvOverlay) closeMarkInterviewModal(); });
+
+document.getElementById("mark-iv-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const ev = _pendingCalEvent;
+  const company = markIvCompany.value.trim();
+  const role    = markIvRole.value.trim();
+  const person  = markIvPerson.value.trim();
+  if (!company) return;
+
+  markIvSubmit.disabled = true;
+  markIvSubmit.textContent = "Saving...";
+
+  try {
+    const dateStr = ev && ev.start ? ev.start.slice(0, 10) : todayStr();
+    const created = await _apiCreateInterview({
+      company, role, person,
+      date: dateStr, stage: "", prepped: false,
+      calEventId: ev ? (ev.id || "") : "", reviewed: false,
+    });
+    interviewsCache.push(created);
+
+    // Find or create a pipeline entry for this company
+    const normalised = company.toLowerCase().trim();
+    const existingEntry = dbPipelineCache.find((p) => p.company.toLowerCase().trim() === normalised);
+    if (existingEntry) {
+      if (role && !existingEntry.role) {
+        await fetch(`/pipeline/entries/${existingEntry.id}`, {
+          method: "PATCH",
+          headers: _apiHeaders(),
+          body: JSON.stringify({ role }),
+        });
+        existingEntry.role = role;
+      }
+    } else {
+      const res = await fetch("/pipeline/entries", {
+        method: "POST",
+        headers: _apiHeaders(),
+        body: JSON.stringify({ company, role, status: "prep" }),
+      });
+      if (res.ok) {
+        const newEntry = await res.json();
+        dbPipelineCache.push(newEntry);
+      }
+    }
+
+    renderAll();
+    await renderDashboardPipeline();
+    closeMarkInterviewModal();
+    if (ev) calModalOverlay.classList.remove("active");
+  } finally {
+    markIvSubmit.disabled = false;
+    markIvSubmit.textContent = "Confirm";
+  }
 });
 
 // Settings dropdown

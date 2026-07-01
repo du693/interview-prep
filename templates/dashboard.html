@@ -225,6 +225,33 @@
     </div>
   </div>
 
+  <div class="mark-iv-overlay" id="mark-iv-overlay">
+    <div class="mark-iv-dialog">
+      <div class="mark-iv-head">
+        <h3>Add to pipeline</h3>
+        <button type="button" class="mark-iv-close" id="mark-iv-close">×</button>
+      </div>
+      <form id="mark-iv-form" class="mark-iv-form">
+        <div class="mark-iv-field">
+          <label>Company</label>
+          <input type="text" id="mark-iv-company" required placeholder="e.g. Acme Corp">
+        </div>
+        <div class="mark-iv-field">
+          <label>Role <span class="mark-iv-optional">(optional)</span></label>
+          <input type="text" id="mark-iv-role" placeholder="e.g. Account Executive">
+        </div>
+        <div class="mark-iv-field">
+          <label>Who is it with? <span class="mark-iv-optional">(optional)</span></label>
+          <input type="text" id="mark-iv-person" placeholder="e.g. Sarah Chen, Hiring Manager">
+        </div>
+        <div class="mark-iv-actions">
+          <button type="submit" class="db-btn-primary" id="mark-iv-submit">Confirm</button>
+          <button type="button" class="db-btn-ghost" id="mark-iv-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/static/dashboard.js?v={{ cache_bust }}"></script>
 </body>
 </html>

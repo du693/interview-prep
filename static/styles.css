@@ -910,3 +910,54 @@ html.embedded #conversation {
   width: 18px;
   height: 18px;
 }
+
+/* Recruiter screen save confirmation */
+
+.recruiter-save-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 40px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rsc-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-ring);
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.rsc-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.recruiter-save-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  color: var(--text);
+}
+
+.recruiter-save-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.rsc-hint {
+  font-size: 0.82rem !important;
+  color: var(--text-faint) !important;
+  max-width: 380px;
+}

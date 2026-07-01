@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "RevReady",
+  "version": "0.1.0",
+  "description": "Interview prep directly from Google Calendar.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://calendar.google.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://calendar.google.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

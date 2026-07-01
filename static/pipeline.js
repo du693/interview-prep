@@ -240,7 +240,7 @@ function buildActionArea(entry) {
       prepBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;margin-right:5px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Generate prep document`;
       prepBtn.addEventListener("click", () => {
         advanceStatus(entry.id, "screening");
-        openBriefingModal(entry.company, entry.role);
+        openBriefingModal(entry.company, entry.role, entry.id);
       });
       btns.appendChild(prepBtn);
       area.appendChild(btns);
@@ -410,7 +410,7 @@ function buildRoundRow(entry, round, num) {
   briefingBtn.type = "button";
   briefingBtn.className = "pl-round-briefing-btn";
   briefingBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Briefing`;
-  briefingBtn.addEventListener("click", () => openBriefingModal(entry.company, entry.role));
+  briefingBtn.addEventListener("click", () => openBriefingModal(entry.company, entry.role, entry.id));
 
   const delBtn = document.createElement("button");
   delBtn.type = "button";
@@ -583,10 +583,11 @@ document.getElementById("add-company-form").addEventListener("submit", async (e)
 const briefingModalOverlay = document.getElementById("briefing-modal-overlay");
 const briefingModalFrame = document.getElementById("briefing-modal-frame");
 
-function openBriefingModal(company = "", role = "") {
+function openBriefingModal(company = "", role = "", pipelineId = "") {
   const params = new URLSearchParams({ embed: "1", _: Date.now() });
   if (company) params.set("company", company);
   if (role) params.set("role", role);
+  if (pipelineId) params.set("pipeline_id", pipelineId);
   briefingModalFrame.src = `/app?${params}`;
   briefingModalOverlay.classList.add("active");
   document.documentElement.style.overflow = "hidden";

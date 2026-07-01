@@ -275,15 +275,21 @@ composer.addEventListener("submit", async (event) => {
   composerError.style.display = "none";
 
   if (!AUTH_TOKEN) {
-    composerError.textContent = "Please sign in with Google to generate a briefing.";
+    composerError.textContent = "Please sign in with Google to continue.";
     composerError.style.display = "block";
+    return;
+  }
+
+  const formData = new FormData(composer);
+  const stage = formData.get("stage_type") || "intro_call";
+
+  if (stage === "recruiter_screen") {
+    await handleRecruiterSave(formData);
     return;
   }
 
   submitBtn.disabled = true;
   submitBtnLabel.textContent = "Generating...";
-
-  const formData = new FormData(composer);
 
   try {
     const res = await fetch("/briefing", {
@@ -324,13 +330,70 @@ composer.addEventListener("submit", async (event) => {
   }
 });
 
+async function handleRecruiterSave(formData) {
+  submitBtn.disabled = true;
+  submitBtnLabel.textContent = "Saving...";
+
+  try {
+    const res = await fetch("/recruiter-screen", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${AUTH_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_name: formData.get("company_name") || "",
+        job_title: formData.get("job_title") || "",
+        notes: formData.get("recruiter_notes") || "",
+        comp_range: formData.get("comp_range") || "",
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      composerError.textContent = data.error || data.detail || "Something went wrong.";
+      composerError.style.display = "block";
+      return;
+    }
+
+    const jobTitle = formData.get("job_title") || "this role";
+    const company = formData.get("company_name") || "";
+    userMsg.textContent = `Recruiter screen — ${jobTitle}${company ? ` at ${company}` : ""}.`;
+    showConversation();
+
+    result.innerHTML = `
+      <div class="recruiter-save-card">
+        <div class="rsc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>Added to pipeline</h3>
+        <p>${jobTitle}${company ? ` at <strong>${company}</strong>` : ""} — saved at the recruiter screen stage.</p>
+        <p class="rsc-hint">No briefing needed yet. Once you're through to the next stage, come back and prep properly.</p>
+      </div>`;
+  } catch {
+    composerError.textContent = "Network error — please try again.";
+    composerError.style.display = "block";
+  } finally {
+    submitBtn.disabled = false;
+    submitBtnLabel.textContent = "Save to pipeline";
+  }
+}
+
 const stageFieldGroups = Array.from(document.querySelectorAll(".stage-fields"));
+const materialsSection = document.getElementById("materials-section");
+const jdField = composer.querySelector('[name="job_description"]');
+const resumeField = composer.querySelector('[name="resume"]');
+
 function syncStageFields() {
   const selected = composer.querySelector('input[name="stage_type"]:checked');
   const stage = selected ? selected.value : "intro_call";
+  const isRecruiter = stage === "recruiter_screen";
+
   stageFieldGroups.forEach((group) => {
     group.classList.toggle("active", group.dataset.stage === stage);
   });
+
+  submitBtnLabel.textContent = isRecruiter ? "Save to pipeline" : "Generate briefing";
+  if (materialsSection) materialsSection.style.display = isRecruiter ? "none" : "";
+  if (jdField) jdField.required = !isRecruiter;
+  if (resumeField) resumeField.required = !isRecruiter;
 }
 composer.querySelectorAll('input[name="stage_type"]').forEach((input) => {
   input.addEventListener("change", syncStageFields);
@@ -353,19 +416,63 @@ if (existingJob) {
   startPolling(existingJob);
 }
 
-// Pre-fill form from calendar event params
-const _params = new URLSearchParams(location.search);
-const _prefillCompany = _params.get("company");
-const _prefillRole = _params.get("role");
-const _prefillInterviewer = _params.get("interviewer");
-const _prefillInterviewerTitle = _params.get("interviewer_title");
-if (_prefillCompany || _prefillRole) {
-  const companyEl = document.querySelector("[name='company_name']");
-  const roleEl = document.querySelector("[name='job_title']");
-  const interviewerEl = document.querySelector("[name='interviewer_name']");
-  const interviewerTitleEl = document.querySelector("[name='interviewer_title']");
-  if (companyEl && _prefillCompany) companyEl.value = _prefillCompany;
-  if (roleEl && _prefillRole) roleEl.value = _prefillRole;
-  if (interviewerEl && _prefillInterviewer) interviewerEl.value = _prefillInterviewer;
-  if (interviewerTitleEl && _prefillInterviewerTitle) interviewerTitleEl.value = _prefillInterviewerTitle;
-}
+// Pre-fill form from pipeline entry + URL params, save changes back on blur
+(async () => {
+  const params = new URLSearchParams(location.search);
+  const pipelineId = params.get("pipeline_id");
+
+  const fields = {
+    company_name: document.querySelector("[name='company_name']"),
+    job_title:    document.querySelector("[name='job_title']"),
+    company_url:  document.querySelector("[name='company_url']"),
+    role_level:   document.querySelector("[name='role_level']"),
+    interviewer_name:  document.querySelector("[name='interviewer_name']"),
+    interviewer_title: document.querySelector("[name='interviewer_title']"),
+  };
+
+  // Pre-fill from pipeline entry if we have an ID
+  if (pipelineId && AUTH_TOKEN) {
+    try {
+      const res = await fetch(`/pipeline/entries/${pipelineId}`, {
+        headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
+      });
+      if (res.ok) {
+        const entry = await res.json();
+        if (fields.company_name && entry.company)    fields.company_name.value = entry.company;
+        if (fields.job_title    && entry.role)       fields.job_title.value    = entry.role;
+        if (fields.company_url  && entry.companyUrl) fields.company_url.value  = entry.companyUrl;
+        if (fields.role_level   && entry.roleLevel)  fields.role_level.value   = entry.roleLevel;
+      }
+    } catch { /* non-fatal */ }
+  }
+
+  // URL params fill any gaps (company/role fallback, plus interviewer which isn't in pipeline)
+  const p = { company: params.get("company"), role: params.get("role"),
+               interviewer: params.get("interviewer"), interviewer_title: params.get("interviewer_title") };
+  if (fields.company_name && p.company && !fields.company_name.value)         fields.company_name.value = p.company;
+  if (fields.job_title    && p.role    && !fields.job_title.value)            fields.job_title.value    = p.role;
+  if (fields.interviewer_name  && p.interviewer       && !fields.interviewer_name.value)  fields.interviewer_name.value  = p.interviewer;
+  if (fields.interviewer_title && p.interviewer_title && !fields.interviewer_title.value) fields.interviewer_title.value = p.interviewer_title;
+
+  // Save field changes back to the pipeline entry on blur
+  if (pipelineId && AUTH_TOKEN) {
+    const patchMap = {
+      company_name: "company",
+      job_title:    "role",
+      company_url:  "companyUrl",
+      role_level:   "roleLevel",
+    };
+    Object.entries(patchMap).forEach(([fieldName, pipelineKey]) => {
+      const el = fields[fieldName];
+      if (!el) return;
+      el.addEventListener("blur", () => {
+        const val = el.value.trim();
+        fetch(`/pipeline/entries/${pipelineId}`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${AUTH_TOKEN}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ [pipelineKey]: val }),
+        }).catch(() => {});
+      });
+    });
+  }
+})();

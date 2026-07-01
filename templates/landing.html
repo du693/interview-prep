@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Interview Prep — Walk in already knowing the room</title>
+  <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
+  <link rel="stylesheet" href="/static/landing.css?v={{ cache_bust }}">
+</head>
+<body class="lp-body">
+  <div class="bg-glow"></div>
+  <div class="lp-mesh"></div>
+
+  <nav class="lp-nav">
+    <div class="lp-nav-inner">
+      <div class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-1.2 4.4L21 20l-4.3-1.2a8.4 8.4 0 1 1 4.3-7.3z"/></svg>
+        </span>
+        <h1>Interview Prep</h1>
+      </div>
+      <div id="lp-auth-area">
+        <a id="lp-dashboard-btn" href="/dashboard" class="auth-btn lp-primary" style="display:none">
+          <span>Go to dashboard</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="lp-hero">
+      <p class="lp-eyebrow">Multi-agent interview prep</p>
+      <h2 class="lp-headline">Walk in already<br>knowing the room.</h2>
+      <p class="lp-subhead">
+        Give us the role, your resume, and the interview stage. Three agents research the
+        company, read your resume, and hand you back a one-page briefing built for that
+        exact conversation — intro call, technical round, panel, or final.
+      </p>
+      <div class="lp-cta-col">
+        <a id="lp-cta-primary" href="/auth/google" class="lp-btn-primary">
+          Sign up with Google
+        </a>
+        <p class="lp-signin-text">Already have an account? <a id="lp-signin-link" href="/auth/google">Sign in</a></p>
+      </div>
+
+      <div class="lp-preview" aria-hidden="true">
+        <div class="lp-preview-head">
+          <span class="lp-preview-dot"></span>
+          <span class="lp-preview-dot"></span>
+          <span class="lp-preview-dot"></span>
+          <span class="lp-preview-label">Example briefing — Senior Backend Engineer @ Stripe</span>
+        </div>
+        <div class="lp-preview-grid">
+          <div class="lp-preview-card">
+            <span class="lp-preview-tag">WHAT TO EXPECT</span>
+            <p>A 60-minute system design interview testing whether you can architect distributed, high-throughput payment systems that stay correct under failure.</p>
+          </div>
+          <div class="lp-preview-card">
+            <span class="lp-preview-tag">FROM YOUR RESEARCH</span>
+            <p>Stripe processed $1.9T in payments volume in 2025 — what's the biggest active scaling challenge the team is working on right now?</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section">
+      <p class="lp-section-eyebrow">How it works</p>
+      <h3 class="lp-section-title">Three steps. One page.</h3>
+      <div class="lp-steps">
+        <div class="lp-step">
+          <span class="lp-step-num">01</span>
+          <h4>Tell us about the role</h4>
+          <p>Job title, company, your resume, and which stage you're prepping for — intro call through final round.</p>
+        </div>
+        <div class="lp-step">
+          <span class="lp-step-num">02</span>
+          <h4>We research in real time</h4>
+          <p>One agent searches the web for news, funding, and culture signals. Another reads the company's own site directly.</p>
+        </div>
+        <div class="lp-step">
+          <span class="lp-step-num">03</span>
+          <h4>Get your briefing</h4>
+          <p>A synthesis agent turns all of it into a single page — written to you, grounded in what was actually found, ready to download as a PDF.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section">
+      <p class="lp-section-eyebrow">Built for every stage</p>
+      <h3 class="lp-section-title">The briefing adapts to the room you're walking into.</h3>
+      <div class="lp-stage-grid">
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span>
+          <h4>Intro call</h4>
+        </div>
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12.5H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2"/><path d="M9 21l1.5-3H19a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v6.5z"/></svg></span>
+          <h4>Behavioral round</h4>
+        </div>
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4L3 12l5 8"/><path d="M16 4l5 8-5 8"/></svg></span>
+          <h4>Technical round</h4>
+        </div>
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/></svg></span>
+          <h4>Roleplay / demo</h4>
+        </div>
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8" r="3"/><circle cx="16" cy="8.5" r="2.6"/><path d="M2.5 20c0-3.2 2.7-5.7 6-5.7s6 2.5 6 5.7"/><path d="M13 14.7c.9-.6 1.9-.9 3-.9 2.8 0 5 2.3 5 5.2"/></svg></span>
+          <h4>Panel round</h4>
+        </div>
+        <div class="lp-stage-chip">
+          <span class="stage-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg></span>
+          <h4>Final round</h4>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-section">
+      <p class="lp-section-eyebrow">Under the hood</p>
+      <h3 class="lp-section-title">Three small agents instead of one big prompt.</h3>
+      <div class="lp-agent-grid">
+        <div class="lp-agent-card">
+          <span class="lp-agent-num">1</span>
+          <h4>Researcher</h4>
+          <p>Runs on Claude with live web search — recent news, funding, Glassdoor sentiment, and your interviewer's background if you know their name.</p>
+        </div>
+        <div class="lp-agent-card">
+          <span class="lp-agent-num">2</span>
+          <h4>Scraper</h4>
+          <p>Reads the company's own about, culture, and team pages directly — no API call, just the source.</p>
+        </div>
+        <div class="lp-agent-card">
+          <span class="lp-agent-num">3</span>
+          <h4>Synthesizer</h4>
+          <p>Takes the job description, your resume, and everything the other two found, and writes the one-page briefing — second person, no filler.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-stats">
+      <div class="lp-stat">
+        <span class="lp-stat-num">3</span>
+        <span class="lp-stat-label">specialized agents</span>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat-num">6</span>
+        <span class="lp-stat-label">interview stages covered</span>
+      </div>
+      <div class="lp-stat">
+        <span class="lp-stat-num">1</span>
+        <span class="lp-stat-label">page, every time</span>
+      </div>
+    </section>
+
+    <section class="lp-final-cta">
+      <h3>Ready to walk in ready?</h3>
+      <p>Sign in and get your first briefing in about a minute.</p>
+      <div class="lp-cta-col">
+        <a id="lp-cta-final" href="/auth/google" class="lp-btn-primary">Sign up with Google</a>
+        <p class="lp-signin-text">Already have an account? <a href="/auth/google">Sign in</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer lp-footer">
+    <p>Research, read, write — walk in ready.</p>
+    <div class="footer-links">
+      <a href="https://www.linkedin.com/in/jack-c-41695423b/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+      </a>
+      <a href="https://github.com/du693" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577 0-.285-.01-1.04-.016-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.305 3.492.998.108-.776.42-1.305.763-1.605-2.665-.303-5.466-1.332-5.466-5.93 0-1.31.469-2.382 1.236-3.222-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.291-1.552 3.297-1.23 3.297-1.23.654 1.652.243 2.873.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.479 5.92.43.37.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .32.216.694.825.576C20.565 21.795 24 17.296 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="/static/landing.js?v={{ cache_bust }}"></script>
+</body>
+</html>

@@ -51,6 +51,10 @@ SAMPLE_RESULT = {
         "though live research was unavailable to confirm). This specific role is fully "
         "remote, US-based."
     ),
+    "stage_brief": "",
+    "watch_out": "",
+    "skills_at_risk": [],
+    "prep_plan": [],
     "role_questions": [
         "What does the current SMB sales motion look like — is there an established outbound "
         "playbook, or is this role expected to help build it?",

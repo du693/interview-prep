@@ -4,11 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Interview Prep</title>
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
+  <script>
+    var isEmbedded = window.self !== window.top || new URLSearchParams(location.search).get("embed") === "1";
+    if (isEmbedded) {
+      document.documentElement.classList.add("embedded");
+    }
+  </script>
 </head>
-<body>
+<body data-token="{{ access_token }}" data-email="{{ user_email }}">
   <div class="bg-glow"></div>
+  <div id="scroll-hint" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
   <div class="page">
+    <button type="button" id="embedded-close-btn" aria-label="Close">×</button>
     <header class="app-header">
       <div class="brand">
         <span class="brand-mark">
@@ -19,9 +29,131 @@
           <p>Walk in knowing the company, the role, and what to ask.</p>
         </div>
       </div>
+      <div id="auth-area">
+        <a id="login-btn" href="/auth/google" class="auth-btn">
+          <svg viewBox="0 0 48 48" width="16" height="16"><path fill="#FFC107" d="M43.6 20.5h-1.9V20.5H24v7.5h11.3c-1.6 4.6-6 7.9-11.3 7.9-6.9 0-12.5-5.6-12.5-12.5S17.1 10.9 24 10.9c3.2 0 6.1 1.2 8.3 3.2l5.3-5.3C34.5 5.6 29.5 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 44.5 35.3 44.5 24c0-1.2-.1-2.4-.3-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.2 4.5C14.1 15.1 18.7 12 24 12c3.2 0 6.1 1.2 8.3 3.2l5.3-5.3C34.5 6.6 29.5 4.5 24 4.5c-7.9 0-14.7 4.5-18.1 11l.4-.8z"/><path fill="#4CAF50" d="M24 44.5c5.4 0 10.3-2 14-5.3l-6.4-5.3c-2 1.5-4.6 2.4-7.6 2.4-5.3 0-9.8-3.4-11.4-8.1l-6.5 5C9.2 39.9 16 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20.5h-1.9V20.5H24v7.5h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.4 5.3c3.7-3.4 6-8.5 6-14.9 0-1.2-.1-2.4-.3-3.5z"/></svg>
+          <span>Sign in with Google</span>
+        </a>
+        <div id="user-badge" style="display:none">
+          <span id="user-email"></span>
+          <button id="logout-btn" type="button">Sign out</button>
+        </div>
+      </div>
     </header>
 
+    <div id="form-stage">
     <form id="composer">
+      <div class="field-group">
+        <div class="group-head">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+          </span>
+          <div>
+            <h2>What stage is this interview?</h2>
+            <p>Pick the round you're prepping for — the briefing adapts to it.</p>
+          </div>
+        </div>
+        <div class="stage-grid">
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="intro_call" checked>
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+            </span>
+            <h3>Intro call</h3>
+            <p>Recruiter or hiring manager screen</p>
+          </label>
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="behavioral">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 12.5H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2"/><path d="M9 21l1.5-3H19a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v6.5z"/></svg>
+            </span>
+            <h3>Behavioral round</h3>
+            <p>Competency and culture fit</p>
+          </label>
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="technical">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 4L3 12l5 8"/><path d="M16 4l5 8-5 8"/></svg>
+            </span>
+            <h3>Technical round</h3>
+            <p>Skills, systems, or case work</p>
+          </label>
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="roleplay">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <h3>Roleplay / demo</h3>
+            <p>Mock pitch, cold call, or demo</p>
+          </label>
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="panel">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8.5" cy="8" r="3"/><circle cx="16" cy="8.5" r="2.6"/><path d="M2.5 20c0-3.2 2.7-5.7 6-5.7s6 2.5 6 5.7"/><path d="M13 14.7c.9-.6 1.9-.9 3-.9 2.8 0 5 2.3 5 5.2"/></svg>
+            </span>
+            <h3>Panel round</h3>
+            <p>Multiple interviewers at once</p>
+          </label>
+          <label class="stage-card">
+            <input type="radio" name="stage_type" value="final">
+            <span class="stage-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>
+            </span>
+            <h3>Final round</h3>
+            <p>Executive or offer-stage conversation</p>
+          </label>
+        </div>
+
+        <div class="stage-fields" data-stage="behavioral">
+          <div class="field">
+            <label>What do they seem to value most? <span class="hint">(optional)</span></label>
+            <input type="text" name="behavioral_focus" placeholder="e.g. ownership, bias to action, collaboration">
+          </div>
+        </div>
+        <div class="stage-fields" data-stage="technical">
+          <div class="field-row">
+            <div class="field">
+              <label>What type of technical assessment?</label>
+              <input type="text" name="tech_assessment_type" placeholder="e.g. live coding, system design, case study, take-home">
+            </div>
+            <div class="field">
+              <label>Topics or skills likely to be tested</label>
+              <input type="text" name="tech_topics" placeholder="e.g. SQL, REST APIs, data modeling, or for sales: Salesforce, pipeline forecasting">
+            </div>
+          </div>
+        </div>
+        <div class="stage-fields" data-stage="roleplay">
+          <div class="field-row">
+            <div class="field">
+              <label>What's the scenario?</label>
+              <input type="text" name="roleplay_scenario" placeholder="e.g. mock pitch, cold call, product demo">
+            </div>
+            <div class="field">
+              <label>Anything specific you'll need to handle? <span class="hint">(optional)</span></label>
+              <input type="text" name="roleplay_specifics" placeholder="e.g. a tough pricing objection, a live Q&A">
+            </div>
+          </div>
+        </div>
+        <div class="stage-fields" data-stage="panel">
+          <div class="field-row">
+            <div class="field">
+              <label>Who else is on the panel? <span class="hint">(titles, if known)</span></label>
+              <input type="text" name="panel_makeup" placeholder="e.g. VP Sales, Eng Lead, a peer AE">
+            </div>
+            <div class="field">
+              <label>Anything about how it's structured? <span class="hint">(optional)</span></label>
+              <input type="text" name="panel_structure" placeholder="e.g. 45 min, each person asks from a different angle">
+            </div>
+          </div>
+        </div>
+        <div class="stage-fields" data-stage="final">
+          <div class="field">
+            <label>Anything about where the company's headed right now? <span class="hint">(optional)</span></label>
+            <input type="text" name="final_trajectory" placeholder="e.g. just raised a Series C, new exec hire">
+          </div>
+        </div>
+      </div>
+
       <div class="field-group">
         <div class="group-head">
           <span class="icon">
@@ -100,12 +232,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
       </button>
       <div id="composer-error"></div>
-    </form>
 
-    <p class="sample-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L15 8.5V2"/><path d="M9 2h6"/><path d="M7.5 14h9"/></svg>
-      Just testing? <a href="#" id="sample-link">Load a sample briefing</a> — no API calls, ~3s.
-    </p>
+      <p class="sample-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L15 8.5V2"/><path d="M9 2h6"/><path d="M7.5 14h9"/></svg>
+        Just testing? <a href="#" id="sample-link">Load a sample briefing</a> — no API calls, ~3s.
+      </p>
+    </form>
 
     <div id="conversation">
       <div class="msg user">
@@ -147,6 +279,7 @@
         </button>
       </div>
     </div>
+    </div>
 
     <footer class="app-footer">
       <p>Research, read, write — walk in ready.</p>
@@ -161,6 +294,6 @@
     </footer>
   </div>
 
-  <script src="/static/app.js"></script>
+  <script src="/static/app.js?v={{ cache_bust }}"></script>
 </body>
 </html>

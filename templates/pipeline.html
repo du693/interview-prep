@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pipeline — Interview Prep</title>
+  <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
+  <link rel="stylesheet" href="/static/dashboard.css?v={{ cache_bust }}">
+  <link rel="stylesheet" href="/static/pipeline.css?v={{ cache_bust }}">
+</head>
+<body class="db-body" data-token="{{ access_token }}">
+  <div class="db-shell">
+    <aside class="db-sidebar">
+      <div class="db-brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-1.2 4.4L21 20l-4.3-1.2a8.4 8.4 0 1 1 4.3-7.3z"/></svg>
+        </span>
+        <span class="db-brand-name">Interview Prep</span>
+      </div>
+
+      <div class="db-user">
+        <span class="db-avatar">{{ user_initials }}</span>
+        <div>
+          <p class="db-user-name">{{ user_name }}</p>
+          <p class="db-user-sub">Active job search</p>
+        </div>
+      </div>
+
+      <nav class="db-nav">
+        <a href="/dashboard" class="db-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/saved-briefings" class="db-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4h9l3 3v13H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+          <span>Saved briefings</span>
+        </a>
+        <a href="/pipeline" class="db-nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V12"/><path d="M12 19V5"/><path d="M20 19v-7"/></svg>
+          <span>Pipeline</span>
+        </a>
+        <span class="db-nav-item" id="settings-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.98 19.7a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.98a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9.1A1.7 1.7 0 0 0 10.13 3H10a2 2 0 1 1 4 0v.09c.1.66.51 1.23 1.09 1.51"/></svg>
+          <span>Settings</span>
+          <svg class="db-settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+        <div class="db-settings-menu" id="settings-menu">
+          <a href="/auth/gmail" class="db-settings-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Reconnect Gmail
+          </a>
+          <a href="/auth/logout" class="db-settings-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </a>
+        </div>
+      </nav>
+
+      <div class="db-credits">
+        <p class="db-credits-label">Credits remaining</p>
+        <p class="db-credits-value">—</p>
+      </div>
+    </aside>
+
+    <div class="db-main-col">
+      <div class="db-page-header">
+        <div>
+          <p class="db-greeting">Pipeline</p>
+          <p class="db-greeting-sub">Track where you stand with each company.</p>
+        </div>
+        <button type="button" class="db-btn-primary db-new-briefing-btn" id="add-company-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Add company
+        </button>
+      </div>
+
+      <div id="pipeline-empty" class="pl-empty-state" style="display:none">
+        <p>No companies yet. Add interviews on the dashboard and they'll appear here automatically, or click "Add company" above.</p>
+      </div>
+
+      <div id="pipeline-list" class="pl-list"></div>
+    </div>
+  </div>
+
+  <!-- Add company modal (reuses review modal styles) -->
+  <div class="review-modal-overlay" id="add-modal-overlay">
+    <div class="review-modal">
+      <div class="review-modal-head">
+        <div>
+          <h3>Add company</h3>
+          <p class="review-modal-sub">Track a new company in your pipeline</p>
+        </div>
+        <button type="button" class="review-modal-close" id="add-modal-close">×</button>
+      </div>
+      <form id="add-company-form" class="review-form">
+        <div class="review-field">
+          <label class="review-label">Company</label>
+          <input type="text" id="add-company-name" placeholder="Company name" required>
+        </div>
+        <div class="review-field">
+          <label class="review-label">Role <span class="review-optional">(optional)</span></label>
+          <input type="text" id="add-company-role" placeholder="Role title">
+        </div>
+        <div class="review-field">
+          <label class="review-label">Starting stage</label>
+          <select id="add-company-stage">
+            <option value="intro_incoming">Intro call incoming</option>
+            <option value="followup_sent">Follow-up sent</option>
+            <option value="waiting_response">Waiting for response</option>
+            <option value="response_received">Response received</option>
+          </select>
+        </div>
+        <div class="review-actions">
+          <button type="submit" class="db-btn-primary">Add</button>
+          <button type="button" class="db-btn-ghost" id="add-modal-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Briefing modal -->
+  <div class="db-modal-overlay" id="briefing-modal-overlay">
+    <div class="db-modal">
+      <iframe id="briefing-modal-frame" title="New briefing"></iframe>
+    </div>
+  </div>
+
+  <script src="/static/pipeline.js?v={{ cache_bust }}"></script>
+</body>
+</html>

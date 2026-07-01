@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Interview Prep</title>
+  <link rel="stylesheet" href="/static/styles.css?v={{ cache_bust }}">
+  <link rel="stylesheet" href="/static/dashboard.css?v={{ cache_bust }}">
+</head>
+<body class="db-body" data-token="{{ access_token }}">
+  <div class="db-shell">
+    <aside class="db-sidebar">
+      <div class="db-brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 0 1-1.2 4.4L21 20l-4.3-1.2a8.4 8.4 0 1 1 4.3-7.3z"/></svg>
+        </span>
+        <span class="db-brand-name">Interview Prep</span>
+      </div>
+
+      <div class="db-user">
+        <span class="db-avatar">{{ user_initials }}</span>
+        <div>
+          <p class="db-user-name">{{ user_name }}</p>
+          <p class="db-user-sub">Active job search</p>
+        </div>
+      </div>
+
+      <nav class="db-nav">
+        <a href="/dashboard" class="db-nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="14" width="8" height="7" rx="1.5"/></svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="/saved-briefings" class="db-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4h9l3 3v13H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+          <span>Saved briefings</span>
+        </a>
+        <a href="/pipeline" class="db-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V12"/><path d="M12 19V5"/><path d="M20 19v-7"/></svg>
+          <span>Pipeline</span>
+        </a>
+        <span class="db-nav-item" id="settings-toggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.98 19.7a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.98a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9.1A1.7 1.7 0 0 0 10.13 3H10a2 2 0 1 1 4 0v.09c.1.66.51 1.23 1.09 1.51"/></svg>
+          <span>Settings</span>
+          <svg class="db-settings-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </span>
+        <div class="db-settings-menu" id="settings-menu">
+          <a href="/auth/gmail" class="db-settings-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Reconnect Gmail
+          </a>
+          <a href="/auth/logout" class="db-settings-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </a>
+        </div>
+      </nav>
+
+      <div class="db-credits">
+        <p class="db-credits-label">Credits remaining</p>
+        <p class="db-credits-value">—</p>
+      </div>
+    </aside>
+
+    <div class="db-main-col">
+      <div class="db-page-header">
+        <div>
+          <p class="db-greeting">Welcome back, {{ user_name }}</p>
+          <p class="db-greeting-sub">Here's where your search stands today.</p>
+        </div>
+        <button type="button" class="db-btn-primary db-new-briefing-btn" id="new-briefing-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          New briefing
+        </button>
+      </div>
+
+      <section class="db-stat-row">
+        <div class="db-stat-card db-stat-card--ring">
+          <p class="db-stat-label">Applications sent today</p>
+          <div class="db-ring-wrap">
+            <svg class="db-ring" viewBox="0 0 100 100">
+              <circle class="db-ring-track" cx="50" cy="50" r="38"/>
+              <circle class="db-ring-fill" id="goal-apps-ring" cx="50" cy="50" r="38"/>
+            </svg>
+            <div class="db-ring-label">
+              <span id="goal-apps-count">0</span>
+              <span class="db-ring-goal">/ 3</span>
+            </div>
+          </div>
+        </div>
+        <div class="db-stat-card">
+          <p class="db-stat-label">Applications sent</p>
+          <p class="db-stat-value" id="stat-applications-value">—</p>
+          <p class="db-stat-hint" id="stat-applications-hint">Connect Gmail to track</p>
+          <span class="db-rescan-link" id="rescan-link" style="display:none">Rescan now</span>
+        </div>
+        <div class="db-stat-card">
+          <p class="db-stat-label">Active conversations</p>
+          <p class="db-stat-value" id="stat-active-count">—</p>
+          <p class="db-stat-hint" id="stat-active-hint">Scheduled interviews + pipeline</p>
+        </div>
+        <div class="db-stat-card">
+          <p class="db-stat-label">Interview rate</p>
+          <p class="db-stat-value">—</p>
+          <p class="db-stat-hint">Connect Gmail to track</p>
+        </div>
+      </section>
+
+      <section class="db-content-grid">
+        <div class="db-content-main">
+<div class="db-card">
+            <div class="db-card-head">
+              <h2>Upcoming events</h2>
+              <div class="db-card-head-actions">
+                <button type="button" class="db-add-btn" id="import-calendar-btn">Import from calendar</button>
+                <button type="button" class="db-add-btn" id="add-interview-btn">+ Add interview</button>
+              </div>
+            </div>
+
+            <form id="interview-form" class="db-interview-form" style="display:none">
+              <div class="db-form-row">
+                <input type="text" id="interview-company" placeholder="Company" required>
+                <input type="text" id="interview-role" placeholder="Role" required>
+              </div>
+              <div class="db-form-row">
+                <input type="date" id="interview-date" required>
+                <select id="interview-stage">
+                  <option value="">Stage (optional)</option>
+                  <option value="intro_call">Intro call</option>
+                  <option value="behavioral">Behavioral round</option>
+                  <option value="technical">Technical round</option>
+                  <option value="roleplay">Roleplay / demo</option>
+                  <option value="panel">Panel round</option>
+                  <option value="final">Final round</option>
+                </select>
+              </div>
+              <div class="db-form-actions">
+                <button type="submit" class="db-btn-primary">Save</button>
+                <button type="button" class="db-btn-ghost" id="cancel-interview-btn">Cancel</button>
+              </div>
+            </form>
+
+            <div id="interview-empty" class="db-empty">
+              <p>No upcoming events yet.</p>
+            </div>
+
+            <div id="interview-list" class="db-interview-list"></div>
+          </div>
+        </div>
+
+        <div class="db-content-rail">
+          <div class="db-card">
+            <div class="db-card-head">
+              <h2>In pipeline</h2>
+              <a href="/pipeline" class="db-card-link">View all</a>
+            </div>
+            <div id="pipeline-roles-list" class="db-pipeline-roles-list">
+              <div class="db-empty"><p>No active roles</p></div>
+            </div>
+          </div>
+
+<div class="db-card db-gmail-card" id="gmail-card">
+            <button type="button" class="db-dismiss" id="gmail-dismiss" aria-label="Dismiss">×</button>
+            <h2 id="gmail-card-title">Connect Gmail</h2>
+            <p id="gmail-card-body">Automatically track applications sent as they come in. We only check subject lines and sender domains against known application-confirmation patterns — we never read or store your emails.</p>
+            <button type="button" class="db-btn-primary db-gmail-connect" id="gmail-connect-btn">Connect Gmail</button>
+            <a href="/auth/gmail" class="db-gmail-reconnect" id="gmail-reconnect-link" style="display:none">Reconnect / update permissions</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="db-modal-overlay" id="briefing-modal-overlay">
+    <div class="db-modal">
+      <iframe id="briefing-modal-frame" title="New briefing"></iframe>
+    </div>
+  </div>
+
+  <div class="cal-modal-overlay" id="cal-modal-overlay">
+    <div class="cal-modal">
+      <div class="cal-modal-head">
+        <h3>Upcoming Calendar Events</h3>
+        <button type="button" class="cal-modal-close" id="cal-modal-close">×</button>
+      </div>
+      <div id="cal-events-list" class="cal-events-list">
+        <p class="cal-loading">Loading events...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="review-modal-overlay" id="review-modal-overlay">
+    <div class="review-modal">
+      <div class="review-modal-head">
+        <div>
+          <h3 id="review-modal-title">Review interview</h3>
+          <p class="review-modal-sub" id="review-modal-sub"></p>
+        </div>
+        <button type="button" class="review-modal-close" id="review-modal-close">×</button>
+      </div>
+      <form id="review-form" class="review-form">
+        <div class="review-field">
+          <label class="review-label">How did it go?</label>
+          <textarea id="review-notes" placeholder="Your impressions, how you felt, what stood out..." rows="3"></textarea>
+        </div>
+        <div class="review-field">
+          <label class="review-label">Did you send a follow-up email?</label>
+          <div class="review-toggle-row">
+            <label class="review-toggle-opt"><input type="radio" name="followup_sent" value="yes"> Yes</label>
+            <label class="review-toggle-opt"><input type="radio" name="followup_sent" value="no" checked> No</label>
+          </div>
+        </div>
+        <div class="review-field">
+          <label class="review-label">Next step date <span class="review-optional">(optional)</span></label>
+          <input type="date" id="review-next-date">
+        </div>
+        <div class="review-field">
+          <label class="review-label">Who to follow up with <span class="review-optional">(optional)</span></label>
+          <input type="text" id="review-followup-person" placeholder="e.g. Sarah Chen (Hiring Manager)">
+        </div>
+        <div class="review-actions">
+          <button type="submit" class="db-btn-primary">Save review</button>
+          <button type="button" class="db-btn-ghost" id="review-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/dashboard.js?v={{ cache_bust }}"></script>
+</body>
+</html>
